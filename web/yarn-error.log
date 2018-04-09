@@ -1,0 +1,32 @@
+Arguments: 
+  /Users/jay/.nvm/versions/node/v8.10.0/bin/node /Users/jay/.nvm/versions/node/v8.10.0/bin/yarn  --version
+
+PATH: 
+  /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/jay/.nvm/versions/node/v8.10.0/bin:/Users/jay/bin:/usr/local/opt/fzf/bin:/Users/jay/bin:/Users/jay/bin:/Users/jay/bin:/Users/jay/bin:/Users/jay/bin:/Users/jay/bin
+
+Yarn version: 
+  1.5.1
+
+Node version: 
+  8.10.0
+
+Platform: 
+  darwin x64
+
+npm manifest: 
+  No manifest
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
+
+Trace: 
+  Error: Couldn't find a package.json file in "/Users/jay/code/react/cchess/web"
+      at new MessageError (/Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:186:110)
+      at /Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:40048:15
+      at Generator.next (<anonymous>)
+      at step (/Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:98:30)
+      at /Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:109:13
+      at <anonymous>
