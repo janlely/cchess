@@ -27,10 +27,12 @@ module.exports = {
 	entry: './src/index.js',
 
 	output: {
-		filename: '[name].bundle.js',
-		path: path.resolve(__dirname, 'dist')
+		filename: '[name].[hash].bundle.js',
+		path: path.resolve(__dirname, 'cchess')
 	},
-
+    devServer: {
+        contentBase: './cchess'
+    },
 	module: {
 		rules: [
 			{
@@ -44,29 +46,42 @@ module.exports = {
 			},
 			{
 				test: /\.css$/,
-
+				exclude: /node_modules/,
 				use: ExtractTextPlugin.extract({
-					use: [
-						{
-							loader: 'css-loader',
-							options: {
-								sourceMap: true
-							}
-						}
-					],
-					fallback: 'style-loader'
+                    //use: [
+                        //{
+                            //loader: 'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]',
+                            //options: {
+                                //sourceMap: true
+                            //}
+                        //}
+                    //],
+					fallback: 'style-loader',
+                    use: 'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]'
 				})
-			}
+            },
+            {
+                test: /\.css$/,
+                include: /node_modules/,
+                use: [ 'style-loader', 'css-loader' ]
+            }
+
 		]
 	},
 
 	plugins: [
 		new UglifyJSPlugin(),
-		new ExtractTextPlugin('style.[contentHash].css'),
+        new ExtractTextPlugin({
+            filename : 'styles.[hash].css',
+            allChunks : true
+        }),
         new HtmlWebPackPlugin({
             filename:'index.html',
             template:'src/index.html',
             title:'My React Webpack Demo'
-        })
-	]
+        }),
+        //new webpack.EvalSourceMapDevToolPlugin({
+            //filename: '[name].js.map'
+        //})
+    ]
 };

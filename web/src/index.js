@@ -1,11 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import Login from "./components/Login.js";
+import Arena from "./components/Arena.js";
+import { BrowserRouter, Route, Switch} from 'react-router-dom';
 
+const App = () => (
+    <Switch>
+        <Route exact path="/" component={Login}/>
+        <Route path="/arena" component={Arena}/>
+    </Switch>
+)
 
-function Index(props) {
-    return (
-        <div>Hello React!</div>
-    )
-}
-
-ReactDOM.render(<Index />, document.getElementById("root"));
+ReactDOM.render(
+    <BrowserRouter basename='/cchess'>
+        <App/>
+    </BrowserRouter>
+, document.getElementById("root"));
