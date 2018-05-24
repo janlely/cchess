@@ -16,13 +16,16 @@ Platform:
 npm manifest: 
   {
     "dependencies": {
+      "animejs": "^2.2.0",
       "babel-core": "^6.26.0",
       "babel-loader": "^7.1.4",
       "babel-preset-env": "^1.6.1",
       "babel-preset-react": "^6.24.1",
       "css-loader": "^0.28.11",
       "extract-text-webpack-plugin": "^4.0.0-beta.0",
+      "hashmap": "^2.3.0",
       "html-webpack-plugin": "^3.2.0",
+      "jquery": "^3.3.1",
       "react": "^16.3.1",
       "react-css-modules": "^4.7.2",
       "react-dom": "^16.3.1",
@@ -31,13 +34,19 @@ npm manifest:
       "style-loader": "^0.20.3",
       "uglifyjs-webpack-plugin": "^1.2.4",
       "webpack": "^4.5.0",
-      "webpack-cli": "^2.0.14"
+      "webpack-cli": "^2.0.14",
+      "winston": "^2.4.2",
+      "ws": "^5.2.0"
     },
     "scripts": {
-      "build": "webpack --config webpack.prod.js",
+      "build": "rimraf cchess && webpack",
       "start": "webpack-dev-server --hot"
     },
     "devDependencies": {
+      "file-loader": "^1.1.11",
+      "react-apollo": "^2.1.4",
+      "rimraf": "^2.6.2",
+      "url-loader": "^1.0.1",
       "webpack-dev-server": "^3.1.4"
     }
   }
@@ -98,6 +107,10 @@ Lockfile:
   alphanum-sort@^1.0.1, alphanum-sort@^1.0.2:
     version "1.0.2"
     resolved "https://registry.yarnpkg.com/alphanum-sort/-/alphanum-sort-1.0.2.tgz#97a1119649b211ad33691d9f9f486a8ec9fbe0a3"
+  
+  animejs@^2.2.0:
+    version "2.2.0"
+    resolved "https://registry.yarnpkg.com/animejs/-/animejs-2.2.0.tgz#35eefdfc535b81949c9cb06f0b3e60c02e6fdc80"
   
   ansi-escapes@^1.0.0:
     version "1.4.0"
@@ -270,6 +283,10 @@ Lockfile:
     version "1.0.1"
     resolved "https://registry.yarnpkg.com/async-each/-/async-each-1.0.1.tgz#19d386a1d9edc6e7c1c85d388aedbcc56d33602d"
   
+  async-limiter@~1.0.0:
+    version "1.0.0"
+    resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.0.tgz#78faed8c3d074ab81f22b4e985d79e8738f720f8"
+  
   async@^1.5.0, async@^1.5.2:
     version "1.5.2"
     resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
@@ -279,6 +296,10 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/async/-/async-2.6.0.tgz#61a29abb6fcc026fea77e56d1c6ec53a795951f4"
     dependencies:
       lodash "^4.14.0"
+  
+  async@~1.0.0:
+    version "1.0.0"
+    resolved "https://registry.yarnpkg.com/async/-/async-1.0.0.tgz#f8fc04ca3a13784ade9e1641af98578cfbd647a9"
   
   asynckit@^0.4.0:
     version "0.4.0"
@@ -1526,7 +1547,7 @@ Lockfile:
       css-color-names "0.0.4"
       has "^1.0.1"
   
-  colors@1.0.3:
+  colors@1.0.3, colors@1.0.x:
     version "1.0.3"
     resolved "https://registry.yarnpkg.com/colors/-/colors-1.0.3.tgz#0433f44d809680fdeb60ed260f1b0c262e82a40b"
   
@@ -1820,6 +1841,10 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/currently-unhandled/-/currently-unhandled-0.4.1.tgz#988df33feab191ef799a61369dd76c17adf957ea"
     dependencies:
       array-find-index "^1.0.1"
+  
+  cycle@1.0.x:
+    version "1.0.3"
+    resolved "https://registry.yarnpkg.com/cycle/-/cycle-1.0.3.tgz#21e80b2be8580f98b468f379430662b046c34ad2"
   
   cyclist@~0.2.2:
     version "0.2.2"
@@ -2397,6 +2422,10 @@ Lockfile:
     version "1.4.0"
     resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   
+  eyes@0.1.x:
+    version "0.1.8"
+    resolved "https://registry.yarnpkg.com/eyes/-/eyes-0.1.8.tgz#62cf120234c683785d902348a800ef3e0cc20bc0"
+  
   fast-deep-equal@^1.0.0:
     version "1.1.0"
     resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-1.1.0.tgz#c053477817c86b51daa853c81e059b733d023614"
@@ -2445,6 +2474,13 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/figures/-/figures-2.0.0.tgz#3ab1a2d2a62c8bfb431a0c94cb797a2fce27c962"
     dependencies:
       escape-string-regexp "^1.0.5"
+  
+  file-loader@^1.1.11:
+    version "1.1.11"
+    resolved "https://registry.yarnpkg.com/file-loader/-/file-loader-1.1.11.tgz#6fe886449b0f2a936e43cabaac0cdbfb369506f8"
+    dependencies:
+      loader-utils "^1.0.2"
+      schema-utils "^0.4.5"
   
   filename-regex@^2.0.0:
     version "2.0.1"
@@ -2890,6 +2926,10 @@ Lockfile:
       inherits "^2.0.3"
       minimalistic-assert "^1.0.0"
   
+  hashmap@^2.3.0:
+    version "2.3.0"
+    resolved "https://registry.yarnpkg.com/hashmap/-/hashmap-2.3.0.tgz#b13fb65da7c8ba5e3db8fc1b8c5ba1d0049daf22"
+  
   hawk@3.1.3, hawk@~3.1.3:
     version "3.1.3"
     resolved "https://registry.yarnpkg.com/hawk/-/hawk-3.1.3.tgz#078444bd7c1640b0fe540d2c9b73d59678e8e1c4"
@@ -2929,7 +2969,7 @@ Lockfile:
     version "1.2.0"
     resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-1.2.0.tgz#aa448cf0986d55cc40773b17174b7dd066cb7cfb"
   
-  hoist-non-react-statics@^2.3.0:
+  hoist-non-react-statics@^2.3.0, hoist-non-react-statics@^2.5.0:
     version "2.5.0"
     resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.0.tgz#d2ca2dfc19c5a91c5a6615ce8e564ef0347e2a40"
   
@@ -3486,7 +3526,7 @@ Lockfile:
       node-fetch "^1.0.1"
       whatwg-fetch ">=0.10.0"
   
-  isstream@~0.1.2:
+  isstream@0.1.x, isstream@~0.1.2:
     version "0.1.2"
     resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
   
@@ -3504,6 +3544,10 @@ Lockfile:
     dependencies:
       has-to-string-tag-x "^1.2.0"
       is-object "^1.0.1"
+  
+  jquery@^3.3.1:
+    version "3.3.1"
+    resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
   
   js-base64@^2.1.9:
     version "2.4.3"
@@ -3762,7 +3806,7 @@ Lockfile:
     version "4.5.0"
     resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   
-  lodash@^4.13.1, lodash@^4.14.0, lodash@^4.17.2, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0:
+  lodash@4.17.5, lodash@^4.13.1, lodash@^4.14.0, lodash@^4.17.2, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0:
     version "4.17.5"
     resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.5.tgz#99a92d65c0272debe8c96b6057bc8fbfa3bed511"
   
@@ -3987,7 +4031,7 @@ Lockfile:
     version "1.4.1"
     resolved "https://registry.yarnpkg.com/mime/-/mime-1.4.1.tgz#121f9ebc49e3766f311a76e1fa1c8003c4b03aa6"
   
-  mime@^2.1.0:
+  mime@^2.0.3, mime@^2.1.0:
     version "2.3.1"
     resolved "https://registry.yarnpkg.com/mime/-/mime-2.3.1.tgz#b1621c54d63b97c47d3cfe7f7215f7d64517c369"
   
@@ -5082,6 +5126,16 @@ Lockfile:
       minimist "^1.2.0"
       strip-json-comments "~2.0.1"
   
+  react-apollo@^2.1.4:
+    version "2.1.4"
+    resolved "https://registry.yarnpkg.com/react-apollo/-/react-apollo-2.1.4.tgz#a51059ac56f1a7997cad636a5d36398b9c93ff12"
+    dependencies:
+      fbjs "^0.8.16"
+      hoist-non-react-statics "^2.5.0"
+      invariant "^2.2.2"
+      lodash "4.17.5"
+      prop-types "^15.6.0"
+  
   react-css-modules@^4.7.2:
     version "4.7.2"
     resolved "https://registry.yarnpkg.com/react-css-modules/-/react-css-modules-4.7.2.tgz#3ded05fc8b5f2879d19131aa850cb6b2b8ca4f0b"
@@ -5503,7 +5557,7 @@ Lockfile:
     version "1.2.4"
     resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   
-  schema-utils@^0.4.2, schema-utils@^0.4.5:
+  schema-utils@^0.4.2, schema-utils@^0.4.3, schema-utils@^0.4.5:
     version "0.4.5"
     resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-0.4.5.tgz#21836f0608aac17b78f9e3e24daff14a5ca13a3e"
     dependencies:
@@ -5819,6 +5873,10 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/ssri/-/ssri-5.3.0.tgz#ba3872c9c6d33a0704a7d71ff045e5ec48999d06"
     dependencies:
       safe-buffer "^5.1.1"
+  
+  stack-trace@0.0.x:
+    version "0.0.10"
+    resolved "https://registry.yarnpkg.com/stack-trace/-/stack-trace-0.0.10.tgz#547c70b347e8d32b4e108ea1a2a159e5fdde19c0"
   
   static-extend@^0.1.1:
     version "0.1.2"
@@ -6257,6 +6315,14 @@ Lockfile:
     version "4.0.0"
     resolved "https://registry.yarnpkg.com/url-join/-/url-join-4.0.0.tgz#4d3340e807d3773bda9991f8305acdcc2a665d2a"
   
+  url-loader@^1.0.1:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/url-loader/-/url-loader-1.0.1.tgz#61bc53f1f184d7343da2728a1289ef8722ea45ee"
+    dependencies:
+      loader-utils "^1.1.0"
+      mime "^2.0.3"
+      schema-utils "^0.4.3"
+  
   url-parse-lax@^1.0.0:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/url-parse-lax/-/url-parse-lax-1.0.0.tgz#7af8f303645e9bd79a272e7a14ac68bc0609da73"
@@ -6577,6 +6643,17 @@ Lockfile:
     dependencies:
       string-width "^1.0.2"
   
+  winston@^2.4.2:
+    version "2.4.2"
+    resolved "https://registry.yarnpkg.com/winston/-/winston-2.4.2.tgz#3ca01f763116fc48db61053b7544e750431f8db0"
+    dependencies:
+      async "~1.0.0"
+      colors "1.0.x"
+      cycle "1.0.x"
+      eyes "0.1.x"
+      isstream "0.1.x"
+      stack-trace "0.0.x"
+  
   worker-farm@^1.5.2:
     version "1.6.0"
     resolved "https://registry.yarnpkg.com/worker-farm/-/worker-farm-1.6.0.tgz#aecc405976fab5a95526180846f0dba288f3a4a0"
@@ -6601,6 +6678,12 @@ Lockfile:
       graceful-fs "^4.1.11"
       imurmurhash "^0.1.4"
       slide "^1.1.5"
+  
+  ws@^5.2.0:
+    version "5.2.0"
+    resolved "https://registry.yarnpkg.com/ws/-/ws-5.2.0.tgz#9fd95e3ac7c76f6ae8bcc868a0e3f11f1290c33e"
+    dependencies:
+      async-limiter "~1.0.0"
   
   xtend@^4.0.0, xtend@~4.0.0, xtend@~4.0.1:
     version "4.0.1"
@@ -6714,9 +6797,9 @@ Lockfile:
 
 Trace: 
   Error: Command failed.
-  Exit code: 1
+  Exit code: 2
   Command: sh
-  Arguments: -c webpack --config webpack.prod.js
+  Arguments: -c rimraf cchess && webpack
   Directory: /Users/jay/code/react/cchess/web
   Output:
   

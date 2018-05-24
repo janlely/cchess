@@ -34,8 +34,7 @@ module.exports = {
         contentBase: './cchess'
     },
 	module: {
-		rules: [
-			{
+		rules: [{
 				test: /\.js$/,
 				exclude: /node_modules/,
 				loader: 'babel-loader',
@@ -43,8 +42,7 @@ module.exports = {
 				options: {
 					presets: ['env']
 				}
-			},
-			{
+			},{
 				test: /\.css$/,
 				exclude: /node_modules/,
 				use: ExtractTextPlugin.extract({
@@ -59,14 +57,14 @@ module.exports = {
 					fallback: 'style-loader',
                     use: 'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]'
 				})
-            },
-            {
+            },{
                 test: /\.css$/,
                 include: /node_modules/,
                 use: [ 'style-loader', 'css-loader' ]
-            }
-
-		]
+            },{
+                test: /\.png$/,
+                use: 'file-loader?limit=8192&name=images/[hash:8].[name].[ext]'
+            }]
 	},
 
 	plugins: [
@@ -83,5 +81,10 @@ module.exports = {
         //new webpack.EvalSourceMapDevToolPlugin({
             //filename: '[name].js.map'
         //})
-    ]
+    ],
+    node: {
+        fs: 'empty',
+        tls: 'empty',
+        net: 'empty'
+    }
 };

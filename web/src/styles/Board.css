@@ -1,0 +1,21 @@
+
+.board-bg{
+    background-color: #cc9900;
+    width: 450px;
+    height: 500px;
+    position: absolute;
+    z-index: -1;
+}
+
+.board-line{
+    width: 400px;
+    height: 450px;
+    margin-left: 23px;
+    margin-top: 25px;
+    z-index: 0;
+}
+
+.board-line-img{
+    width: inherit;
+    height: inherit;
+}
