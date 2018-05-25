@@ -14,14 +14,14 @@ class WebSocketBase extends React.Component{
         if(msg && msg.id){
             let request = this.requestMap.get(msg.id);
             if(request && this.handlerMap.has(request.type)){
-                this.handlerMap.get(request.type)(request, msg);
+                this.handlerMap.get(request.type)(request, msg.data);
                 this.requestMap.remove(msg.id)
             }
         }else{
-            this.handlerNotify(msg);
+            if(this.handlerMap.has(msg.type)){
+                this.handlerMap.get(msg.type)(msg.data);
+            }
         }
-    }
-    handlerNotify(msg){
     }
 }
 

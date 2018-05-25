@@ -15,20 +15,40 @@ class Arena extends WebSocketBase{
         this.state = {
             matchBtnHidden: false,
             timePanelHidden: true,
-            findingMatchHidden: true
+            findingMatchHidden: true,
+            selfName: '',
+            selfHeadUrl: '',
+            selfStepTime: 0,
+            selfMatchTime: 0,
+            enemyName: '',
+            enemyHeadUrl: '',
+            enemyStepTime: 0,
+            enemyMatchTime: 0
         }
         this.matchFound = false;
         this.requestType = {
             findMatch : 'FIND_MATCH'
         }
+        this.handlerMap.set(this.requestType.findMatch, (req, res) => {
+            this.handlerFindMatchRes(req, res);
+        })
+        this.handlerMap.set(this.requestType.enemyMove, (msg) => {
+            this.handlerEnemyMove(msg);
+        })
     }
-    handlerMessage(msg){
+    handlerEnemyMove(msg){
+        
     }
-    findMatch() {
+    handlerFindMatchRes(req, res){
         this.setState({
+            selfStepTime: res.stepTime,
+            selfMatchTime: res.MatchTime,
+            enemyStepTime: res.stepTime,
+            enemyMatchTime: res.MatchTime,
             findingMatchHidden : true,
+            timePanelHidden: false,
             situation: {
-                overturn: false,
+                overturn: !res.red,
                 hongju1:    {x: 0,y: 0,z: 1, r: 1},
                 hongma1:    {x: 1,y: 0,z: 1, r: 1},
                 hongxiang1: {x: 2,y: 0,z: 1, r: 1},
@@ -64,6 +84,16 @@ class Arena extends WebSocketBase{
             }
         })
     }
+    handlerMessage(msg){
+    }
+    findMatch() {
+        let request = {
+            id: Date.now(),
+            type: this.requestType.findMatch
+        }
+        this.requestMap.set(request.id, request);
+        this.props.socket.send(JSON.stringify(request))
+    }
     handlerMatchBtnClick() {
         this.setState({
             findingMatchHidden: false,
@@ -73,19 +103,54 @@ class Arena extends WebSocketBase{
             setTimeout(() => this.findMatch(), 1000)
         }
     }
+    handlerTimePanelConfirm() {
+        this.timer = setInterval(() => {
+            if(this.yourTurn){
+                this.setState({
+                    selfStepTime: this.dec(this.state.selfStepTime),
+                    selfMatchTime: this.dec(this.state.selfMatchTime)
+                })
+            }else{
+                this.setState({
+                    enemyStepTime: this.dec(this.state.enemyStepTime),
+                    enemyMatchTime: this.dec(this.state.enemyMatchTime)
+                })
+            }
+        }, 1000)
+    }
+    dec(time) {
+        if(time > 0){
+            return time - 1;
+        }
+        return time;
+    }
     render() {
         return (
             <div>
+                <InfoPanel 
+                    alignLeft=true
+                    headUrl={this.state.enemyHeadUrl}
+                    stepTime={this.state.enemyStepTime}
+                    matchTime={this.state.enemyMatchTime}
+                    name={this.state.enemyName}
+                />
                 <div styleName="board">
                     <Board/>
                     <MatchingBtn
                         hidden={this.state.matchBtnHidden}
                         handlerMatchBtnClick={() => this.handlerMatchBtnClick()}
                     />
-                    <TimePanel hidden={this.state.timePanelHidden}/>
+                    <TimePanel hidden={this.state.timePanelHidden} onConfirmClick={() => this.handlerTimePanelConfirm()}/>
                     <FindingMatch hidden={this.state.findingMatchHidden}/>
                     {this.state.situation && <Situation situation={this.state.situation}/>}
                 </div>
+                <InfoPanel 
+                    alignLeft=false
+                    headUrl={this.state.selfHeadUrl}
+                    stepTime={this.state.selfStepTime}
+                    matchTime={this.state.selfMatchTime}
+                    name={this.state.selfName}
+                />
                 <ConsoleKeyboard/>
             </div>
         )

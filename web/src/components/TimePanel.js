@@ -11,6 +11,7 @@ class TimePanel extends React.Component {
         return(
             <div styleName="time-panel" hidden={this.props.hidden}>
                 <p>TimePanel</p>
+                <button onClick={() => this.props.onConfirmClick()}>ok</button>
             </div>
         )
     }
