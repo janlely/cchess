@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/jay/.nvm/versions/node/v8.10.0/bin/node /Users/jay/.nvm/versions/node/v8.10.0/bin/yarn start
+  /Users/jay/.nvm/versions/node/v8.10.0/bin/node /Users/jay/.nvm/versions/node/v8.10.0/bin/yarn buil
 
 PATH: 
   /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/jay/.nvm/versions/node/v8.10.0/bin:/Users/jay/bin:/usr/local/opt/fzf/bin:/Users/jay/bin:/Users/jay/bin
@@ -26,12 +26,15 @@ npm manifest:
       "express": "^4.16.3",
       "express-graphql": "^0.6.12",
       "express-session": "^1.15.6",
+      "fastpriorityqueue": "^0.4.0",
       "graphcool": "^0.11.6",
       "graphql": "^0.13.2",
       "graphql-tools": "^3.0.1",
       "hashmap": "^2.3.0",
       "mongodb": "^3.0.8",
+      "mysql": "^2.15.0",
       "redis": "^2.8.0",
+      "string-format": "^2.0.0",
       "ws": "^5.2.0"
     },
     "devDependencies": {
@@ -747,6 +750,10 @@ Lockfile:
     version "0.0.8"
     resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-0.0.8.tgz#1101e9544f4a76b1bc3b26d452ca96d7a35e7978"
   
+  bignumber.js@4.0.4:
+    version "4.0.4"
+    resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-4.0.4.tgz#7c40f5abcd2d6623ab7b99682ee7db81b11889a4"
+  
   binary-extensions@^1.0.0:
     version "1.11.0"
     resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.11.0.tgz#46aa1751fb6a2f93ee5e689bb1087d4b14c6c205"
@@ -1378,6 +1385,10 @@ Lockfile:
   fast-json-stable-stringify@^2.0.0:
     version "2.0.0"
     resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.0.0.tgz#d5142c0caee6b1189f87d3a76111064f86c8bbf2"
+  
+  fastpriorityqueue@^0.4.0:
+    version "0.4.0"
+    resolved "https://registry.yarnpkg.com/fastpriorityqueue/-/fastpriorityqueue-0.4.0.tgz#a037ab7bc48747075dcf15bf7200dd50355d288f"
   
   fd-slicer@~1.0.1:
     version "1.0.1"
@@ -2339,6 +2350,15 @@ Lockfile:
     version "0.0.7"
     resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.7.tgz#3075ce93bc21b8fab43e1bc4da7e8115ed1e7bab"
   
+  mysql@^2.15.0:
+    version "2.15.0"
+    resolved "https://registry.yarnpkg.com/mysql/-/mysql-2.15.0.tgz#ea16841156343e8f2e47fc8985ec41cdd9573b5c"
+    dependencies:
+      bignumber.js "4.0.4"
+      readable-stream "2.3.3"
+      safe-buffer "5.1.1"
+      sqlstring "2.3.0"
+  
   nan@^2.9.2:
     version "2.10.0"
     resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
@@ -2610,6 +2630,10 @@ Lockfile:
     version "0.1.8"
     resolved "https://registry.yarnpkg.com/private/-/private-0.1.8.tgz#2381edb3689f7a53d653190060fcf822d2f368ff"
   
+  process-nextick-args@~1.0.6:
+    version "1.0.7"
+    resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-1.0.7.tgz#150e20b756590ad3f91093f25a4f2ad8bff30ba3"
+  
   process-nextick-args@~2.0.0:
     version "2.0.0"
     resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.0.tgz#a37d732f4271b4ab1ad070d35508e8290788ffaa"
@@ -2685,6 +2709,18 @@ Lockfile:
       ini "~1.3.0"
       minimist "^1.2.0"
       strip-json-comments "~2.0.1"
+  
+  readable-stream@2.3.3:
+    version "2.3.3"
+    resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.3.3.tgz#368f2512d79f9d46fdfc71349ae7878bbc1eb95c"
+    dependencies:
+      core-util-is "~1.0.0"
+      inherits "~2.0.3"
+      isarray "~1.0.0"
+      process-nextick-args "~1.0.6"
+      safe-buffer "~5.1.1"
+      string_decoder "~1.0.3"
+      util-deprecate "~1.0.1"
   
   readable-stream@^2.0.0, readable-stream@^2.0.2, readable-stream@^2.0.5, readable-stream@^2.0.6, readable-stream@^2.1.5, readable-stream@^2.3.5:
     version "2.3.6"
@@ -2964,6 +3000,10 @@ Lockfile:
     version "1.0.3"
     resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   
+  sqlstring@2.3.0:
+    version "2.3.0"
+    resolved "https://registry.yarnpkg.com/sqlstring/-/sqlstring-2.3.0.tgz#525b8a4fd26d6f71aa61e822a6caf976d31ad2a8"
+  
   stack-trace@0.0.10, stack-trace@0.0.x:
     version "0.0.10"
     resolved "https://registry.yarnpkg.com/stack-trace/-/stack-trace-0.0.10.tgz#547c70b347e8d32b4e108ea1a2a159e5fdde19c0"
@@ -2981,6 +3021,10 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/stream-combiner/-/stream-combiner-0.0.4.tgz#4d5e433c185261dde623ca3f44c586bcf5c4ad14"
     dependencies:
       duplexer "~0.1.1"
+  
+  string-format@^2.0.0:
+    version "2.0.0"
+    resolved "https://registry.yarnpkg.com/string-format/-/string-format-2.0.0.tgz#f2df2e7097440d3b65de31b6d40d54c96eaffb9b"
   
   string-similarity@^1.2.0:
     version "1.2.0"
@@ -3006,6 +3050,12 @@ Lockfile:
   string@3.x:
     version "3.3.3"
     resolved "https://registry.yarnpkg.com/string/-/string-3.3.3.tgz#5ea211cd92d228e184294990a6cc97b366a77cb0"
+  
+  string_decoder@~1.0.3:
+    version "1.0.3"
+    resolved "https://registry.yarnpkg.com/string_decoder/-/string_decoder-1.0.3.tgz#0fc67d7c141825de94282dd536bec6b9bce860ab"
+    dependencies:
+      safe-buffer "~5.1.0"
   
   string_decoder@~1.1.1:
     version "1.1.1"
@@ -3344,17 +3394,14 @@ Lockfile:
       readable-stream "^2.0.0"
 
 Trace: 
-  Error: Command failed.
-  Exit code: 1
-  Command: sh
-  Arguments: -c node dist/server.js
-  Directory: /Users/jay/code/react/cchess/server
-  Output:
-  
-      at ProcessTermError.MessageError (/Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:186:110)
-      at new ProcessTermError (/Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:226:113)
-      at ChildProcess.<anonymous> (/Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:30281:17)
-      at emitTwo (events.js:126:13)
-      at ChildProcess.emit (events.js:214:7)
-      at maybeClose (internal/child_process.js:925:16)
-      at Process.ChildProcess._handle.onexit (internal/child_process.js:209:5)
+  Error: Command "buil" not found. Did you mean "build"?
+      at new MessageError (/Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:186:110)
+      at /Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:87307:17
+      at Generator.next (<anonymous>)
+      at step (/Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:98:30)
+      at /Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:116:14
+      at new Promise (<anonymous>)
+      at new F (/Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:23451:28)
+      at /Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:95:12
+      at runCommand (/Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:87312:22)
+      at Object.<anonymous> (/Users/jay/.nvm/versions/node/v8.10.0/lib/node_modules/yarn/lib/cli.js:87412:14)

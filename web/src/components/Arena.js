@@ -3,7 +3,6 @@ import CSSModules from 'react-css-modules';
 import styles from '../styles/Arena.css';
 import Board from './Board.js';
 import MatchingBtn from './MatchingBtn.js';
-import TimePanel from './TimePanel.js';
 import ConsoleKeyboard from './ConsoleKeyboard.js';
 import FindingMatch from './FindingMatch.js';
 import Situation from './Situation.js';
@@ -14,7 +13,6 @@ class Arena extends WebSocketBase{
         super(props);
         this.state = {
             matchBtnHidden: false,
-            timePanelHidden: true,
             findingMatchHidden: true,
             selfName: '',
             selfHeadUrl: '',
@@ -27,64 +25,314 @@ class Arena extends WebSocketBase{
         }
         this.matchFound = false;
         this.requestType = {
-            findMatch : 'FIND_MATCH'
+            findMatch : 'FIND_MATCH',
+            applyMove : 'APPLY_MOVE'
         }
-        this.handlerMap.set(this.requestType.findMatch, (req, res) => {
-            this.handlerFindMatchRes(req, res);
+        this.handlerMap.set(this.requestType.findMatch, (res) => {
+            this.handlerFindMatchRes(res);
         })
+        this.handlerMap.set(this.requestType.applyMove, )
         this.handlerMap.set(this.requestType.enemyMove, (msg) => {
             this.handlerEnemyMove(msg);
         })
+        this.move = {}
     }
     handlerEnemyMove(msg){
         
     }
-    handlerFindMatchRes(req, res){
+    handlerPieceClick(id) {
+        if(!this.yourTurn){
+            return
+        }
+        if(!this.move.fromId){//选子
+            if(this.youRed && id <= 15){ //红方只能移动红子
+                this.move.fromId = id
+                return
+            }
+            if(!this.youRed && id > 15 && id <=31){//黑方只能移动黑子
+                this.move.fromId = id
+                return
+            }
+        }else{ //走子或吃对方子
+            if(this.youRed && id <= 15){ //红方只能吃黑方子
+                return
+            }
+            if(!this.youRed && id > 15 && id <=31){//黑方只能吃红方子
+                return
+            }
+            if(!this.legalMove(this.move.fromId, id)){ //判断是否符合规则
+                return;
+            }
+            //调后端接口
+            let request = {
+                id: Date.now(),
+                type: this.requestType.applyMove,
+                data: {
+                    roomId: this.roomId,
+                    fromId: this.move.fromId,
+                    toId: id
+                }
+            }
+            this.requestMap.set(request.id, request);
+            this.props.socket.send(JSON.stringify(request));
+        }
+        
+    }
+    getXYFromId(id){
+        if(id <= 16){
+            if(!this.state.overturn){//未翻转
+                return [this.situation[id].x, this.situation[id].y];
+            }else{
+                return [8 - this.situation[id].x, 9 - this.situation[id].y];
+            }
+        }else if(16 <= 32){
+            if(this.state.overturn){//翻转
+                return [this.situation[id].x, this.situation[id].y];
+            }else{
+                return [8 - this.situation[id].x, 9 - this.situation[id].y];
+            }
+        }else{
+            return [Math.round((id % 100) / 10), (id % 100) % 10];
+        }
+    }
+    legalMove(id1, id2){
+        let fromXY = this.getXYFromId(id1);
+        let toXY = this.getXYFromId(id2);
+        if([1, 9, 17, 25].indexOf(id1) != -1){ //车
+            if(fromXY[0] != toXY[0] && fromXY[1] != toXY[1]){ //车只能横竖移动
+                return false;
+            }
+            if(fromXY[0] == toXY[0]){ //竖移
+                let x = fromXY[0];
+                for(let i = Math.min(fromXY[1], toXY[1]); i <= Math.max(fromXY[1], toXY[1]); i++){
+                    if(this.situation_[x][i] != 0){ //路径上不能有其他棋子
+                        return false;
+                    }
+                }
+            }else{
+                let y = fromXY[1];
+                for(let i = Math.min(fromXY[0], toXY[0]); i <= Math.max(fromXY[0], toXY[0]); i++){
+                    if(this.situation_[i][y] != 0){ //路径上不能有其他棋子
+                        return false;
+                    }
+                }
+            }
+        }
+        if([2, 8, 18, 24].indexOf(id1) != -1){ //马
+            if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 5){ //马走日 
+                return false;
+            }
+            if(fromXY[0] + 2 = toXY[0] &&  this.situation_[fromXY[0] + 1][fromXY[1]] != 0){//别脚
+                return false;
+            }
+            if(fromXY[0] - 2 = toXY[0] &&  this.situation_[fromXY[0] - 1][fromXY[1]] != 0){//别脚
+                return false;
+            }
+            if(fromXY[1] + 2 = toXY[1] &&  this.situation_[fromXY[0]][fromXY[1] + 1] != 0){//别脚
+                return false;
+            }
+            if(fromXY[1] - 2 = toXY[1] &&  this.situation_[fromXY[0]][fromXY[1] - 1] != 0){//别脚
+                return false;
+            }
+        }
+        if([15, 16, 31, 32].indexOf(id1) != -1){//炮
+            if(fromXY[0] != toXY[0] && fromXY[1] != toXY[1]){ //炮只能横竖移动
+                return false;
+            }
+            if(this.situation_[toXY[0]][toXY[1]] != 0){ //吃子
+                if(fromXY[0] == toXY[0]){ //竖移
+                    let count = 0;
+                    for(let i = Math.min(fromXY[1], toXY[1]); i <= Math.max(fromXY[1], toXY[1]); i++){
+                        if(this.situation_[fromXY[0]][i] != 0){
+                            count++
+                        }
+                    }
+                    if(count != 1){
+                        return false;
+                    }
+                }else{ //横移
+                    let count = 0;
+                    for(let i = Math.min(fromXY[0], toXY[0]); i <= Math.max(fromXY[0], toXY[0]); i++){
+                        if(this.situation_[i][fromXY[1]] != 0){
+                            count++
+                        }
+                    }
+                    if(count != 1){
+                        return false;
+                    }
+                }
+            }else{ //移动
+                if(fromXY[0] == toXY[0]){ //竖移
+                    for(let i = Math.min(fromXY[1], toXY[1]); i <= Math.max(fromXY[1], toXY[1]); i++){
+                        if(this.situation_[fromXY[0]][i] != 0){
+                            return false;
+                        }
+                    }
+                }else{ //横移
+                    for(let i = Math.min(fromXY[0], toXY[0]); i <= Math.max(fromXY[0], toXY[0]); i++){
+                        if(this.situation_[i][fromXY[1]] != 0){
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        if([3, 7, 19, 23].indexOf(id1) != -1){ //象
+            if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 8){ //象飞田
+                return false;
+            }
+            if(this.situation_[(fromXY[0] + toXY[0]) / 2][(fromXY[1] + toXY[1]) / 2] != 0){ //象眼被压
+                return false;
+            }
+        }
+        if([4, 6, 20, 22].indexOf(id1) != -1){ //士
+            if(toXY[0] < 3 || toXY[0] > 5){
+                return false;
+            }
+            if(toXY[1] > 2 && toXY[1] < 7){
+                return false;
+            }
+            if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 2){ 
+                return false;
+            }
+        }
+        if([5, 21].indexOf(id1) != -1){//将帅
+            if(toXY[0] < 3 || toXY[0] > 5){
+                return false;
+            }
+            if(toXY[1] > 2 && toXY[1] < 7){
+                return false;
+            }
+            if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 1){ 
+                return false;
+            }
+        }
+        if([10, 11, 12, 13, 14].indexOf(id1) != 1){ //红兵
+            if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 1){ 
+                return false;
+            }
+            if(!this.state.overturn){//棋盘未翻转
+                if(fromXY[1] > toXY[1]){ //不能后退
+                    return false;
+                }
+                if(fromXY[1] < 5 && fromXY[0] != toXY[0]){ //未过河，不能横移
+                    return false;
+                }
+            }else{//棋盘翻转
+                if(fromXY[1] < toXY[1]){ //不能后退
+                    return false;
+                }
+                if(fromXY[1] > 4 && fromXY[0] != toXY[0]){ //未过河，不能横移
+                    return false;
+                }
+            }
+        }
+        if([26, 27, 28, 29, 30]){//黑卒
+            if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 1){ 
+                return false;
+            }
+            if(!this.state.overturn){//棋盘未翻转
+                if(fromXY[1] < toXY[1]){ //不能后退
+                    return false;
+                }
+                if(fromXY[1] > 4 && fromXY[0] != toXY[0]){ //未过河，不能横移
+                    return false;
+                }
+            }else{//棋盘翻转
+                if(fromXY[1] > toXY[1]){ //不能后退
+                    return false;
+                }
+                if(fromXY[1] < 5 && fromXY[0] != toXY[0]){ //未过河，不能横移
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+    initSituation(overturn) {
+        this.situation = []
+        situation[1] = {x: 0,y: 0,z: 2,o: 1}; //right-ju
+        situation[2] = {x: 1,y: 0,z: 2,o: 1}; //right-ma
+        situation[3] = {x: 2,y: 0,z: 2,o: 1}; //right-xiang
+        situation[4] = {x: 3,y: 0,z: 2,o: 1}; //right-shi
+        situation[5] = {x: 4,y: 0,z: 2,o: 1}; //shuai
+        situation[6] = {x: 5,y: 0,z: 2,o: 1}; //left-shi
+        situation[7] = {x: 6,y: 0,z: 2,o: 1}; //left-xiang
+        situation[8] = {x: 7,y: 0,z: 2,o: 1}; //left-ma
+        situation[9] = {x: 8,y: 0,z: 2,o: 1}; //left-ju
+        situation[10] = {x: 0,y: 3,z: 2,o: 1}; //bing-1
+        situation[11] = {x: 2,y: 3,z: 2,o: 1}; //bing-3
+        situation[12] = {x: 4,y: 3,z: 2,o: 1}; //bing-5
+        situation[13] = {x: 6,y: 3,z: 2,o: 1}; //bing-7
+        situation[14] = {x: 8,y: 3,z: 2,o: 1}; //bing-9
+        situation[15] = {x: 1,y: 2,z: 2,o: 1}; //pao-2
+        situation[16] = {x: 7,y: 2,z: 2,o: 1}; //pao-8
+        situation[17] = {x: 0,y: 0,z: 2,o: 1};
+        situation[18] = {x: 1,y: 0,z: 2,o: 1};
+        situation[19] = {x: 2,y: 0,z: 2,o: 1};
+        situation[20] = {x: 3,y: 0,z: 2,o: 1};
+        situation[21] = {x: 4,y: 0,z: 2,o: 1};
+        situation[22] = {x: 5,y: 0,z: 2,o: 1};
+        situation[23] = {x: 6,y: 0,z: 2,o: 1};
+        situation[24] = {x: 7,y: 0,z: 2,o: 1};
+        situation[25] = {x: 8,y: 0,z: 2,o: 1};
+        situation[26] = {x: 0,y: 3,z: 2,o: 1};
+        situation[27] = {x: 2,y: 3,z: 2,o: 1};
+        situation[28] = {x: 4,y: 3,z: 2,o: 1};
+        situation[29] = {x: 6,y: 3,z: 2,o: 1};
+        situation[30] = {x: 8,y: 3,z: 2,o: 1};
+        situation[31] = {x: 1,y: 2,z: 2,o: 1};
+        situation[32] = {x: 7,y: 2,z: 2,o: 1};
+        this.situation_ = this.convertSituation(this.situation, overturn);
+    }
+    convertSituation(situation, overturn) {
+        let situation_ = [[]];
+        for(let i = 0; i < 9; i++){
+            for(let j = 0; j < 10; j++){
+                situation_[i][j] = 0;
+            }
+        }
+
+        for(let i = 1; i <= 16; i++){
+            let x = !overturn ? situation[i].x : 8 - situation[i].x;
+            let y = !overturn ? situation[i].y : 9 - situation[i].y;
+            if(situation[i].o == 0){
+                situation_[x][y] = 0;
+            }else{
+                situation_[x][y] = i;
+            }
+        }
+
+        for(let i = 17; i <= 32; i++){
+            let x = !overturn ? 8 - situation[i].x : situation[i].x;
+            let y = !overturn ? 9 - situation[i].y : situation[i].y;
+            if(situation[i].o == 0){
+                situation_[x][y] = 0;
+            }else{
+                situation_[x][y] = i;
+            }
+        }
+        
+        return situation_;
+    }
+    handlerFindMatchRes(res){
+        this.youRed = res.red;
+        this.yourTurn = res.red;
+        this.roomId = red.roomId;
+        this.situation = this.initSituation(!res.red);
         this.setState({
             selfStepTime: res.stepTime,
             selfMatchTime: res.MatchTime,
+            selfHeadUrl : res.selfHeadUrl,
             enemyStepTime: res.stepTime,
             enemyMatchTime: res.MatchTime,
+            enemyHeadUrl : res.enemyHeadUrl,
             findingMatchHidden : true,
-            timePanelHidden: false,
-            situation: {
-                overturn: !res.red,
-                hongju1:    {x: 0,y: 0,z: 1, r: 1},
-                hongma1:    {x: 1,y: 0,z: 1, r: 1},
-                hongxiang1: {x: 2,y: 0,z: 1, r: 1},
-                hongshi1:   {x: 3,y: 0,z: 1, r: 1},
-                hongshuai:  {x: 4,y: 0,z: 1, r: 1},
-                hongshi2:   {x: 5,y: 0,z: 1, r: 1},
-                hongxiang2: {x: 6,y: 0,z: 1, r: 1},
-                hongma2:    {x: 7,y: 0,z: 1, r: 1},
-                hongju2:    {x: 8,y: 0,z: 1, r: 1},
-                hongbin1: {x: 0,y: 3,z: 1, r: 1},
-                hongbin2: {x: 2,y: 3,z: 1, r: 1},
-                hongbin3: {x: 4,y: 3,z: 1, r: 1},
-                hongbin4: {x: 6,y: 3,z: 1, r: 1},
-                hongbin5: {x: 8,y: 3,z: 1, r: 1},
-                hongpao1: {x: 1,y: 2,z: 1, r: 1},
-                hongpao2: {x: 7,y: 2,z: 1, r: 1},
-                heiju1:    {x: 0,y: 0,z: 1},
-                heima1:    {x: 1,y: 0,z: 1},
-                heixiang1: {x: 2,y: 0,z: 1},
-                heishi1:   {x: 3,y: 0,z: 1},
-                heijiang:  {x: 4,y: 0,z: 1},
-                heishi2:   {x: 5,y: 0,z: 1},
-                heixiang2: {x: 6,y: 0,z: 1},
-                heima2:    {x: 7,y: 0,z: 1},
-                heiju2:    {x: 8,y: 0,z: 1},
-                heizu1:  {x: 0,y: 3,z: 1},
-                heizu2:  {x: 2,y: 3,z: 1},
-                heizu3:  {x: 4,y: 3,z: 1},
-                heizu4:  {x: 6,y: 3,z: 1},
-                heizu5:  {x: 8,y: 3,z: 1},
-                heipao1: {x: 1,y: 2,z: 1},
-                heipao2: {x: 7,y: 2,z: 1}
-            }
+            situation: this.situation,
+            overturn: !res.red
         })
-    }
-    handlerMessage(msg){
+        this.startGame();
     }
     findMatch() {
         let request = {
@@ -103,7 +351,7 @@ class Arena extends WebSocketBase{
             setTimeout(() => this.findMatch(), 1000)
         }
     }
-    handlerTimePanelConfirm() {
+    startGame() {
         this.timer = setInterval(() => {
             if(this.yourTurn){
                 this.setState({
@@ -140,9 +388,12 @@ class Arena extends WebSocketBase{
                         hidden={this.state.matchBtnHidden}
                         handlerMatchBtnClick={() => this.handlerMatchBtnClick()}
                     />
-                    <TimePanel hidden={this.state.timePanelHidden} onConfirmClick={() => this.handlerTimePanelConfirm()}/>
                     <FindingMatch hidden={this.state.findingMatchHidden}/>
-                    {this.state.situation && <Situation situation={this.state.situation}/>}
+                    {this.state.situation
+                            && <Situation
+                                overturn ={this.state.overturn}
+                                situation={this.state.situation}
+                            />}
                 </div>
                 <InfoPanel 
                     alignLeft=false

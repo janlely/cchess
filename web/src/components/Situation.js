@@ -19,148 +19,53 @@ import heipao from '../images/heipao.png';
 
 class Situation extends React.Component{
     constructor(props){
-        super(props)
+        super(props);
+        this.enrich(this.props.situation);
     }
-    positionToStyle(pos, overturn){
-        return {
-            position: 'absolute',
-            width: '46px',
-            height: '46px',
-            left: (!overturn && pos.r ? (2 + (8-pos.x) * 50) : (2 + pos.x * 50)) + 'px',
-            top: (!overturn && pos.r ? (2 + (9-pos.y) * 50) : (2 + pos.y * 50)) + 'px'
-        }
+    handlerPieceClick(id){
+        this.props.handlerPieceClick(id);
     }
     render(){
         return(
             <div styleName="main">
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongju1, this.props.situation.overturn)}
-                    image={hongju}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongma1, this.props.situation.overturn)}
-                    image={hongma}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongxiang1, this.props.situation.overturn)}
-                    image={hongxiang}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongshi1, this.props.situation.overturn)}
-                    image={hongshi}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongshuai, this.props.situation.overturn)}
-                    image={hongshuai}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongshi2, this.props.situation.overturn)}
-                    image={hongshi}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongxiang2, this.props.situation.overturn)}
-                    image={hongxiang}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongma2, this.props.situation.overturn)}
-                    image={hongma}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongju2, this.props.situation.overturn)}
-                    image={hongju}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongbin1, this.props.situation.overturn)}
-                    image={hongbin}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongbin2, this.props.situation.overturn)}
-                    image={hongbin}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongbin3, this.props.situation.overturn)}
-                    image={hongbin}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongbin4, this.props.situation.overturn)}
-                    image={hongbin}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongbin5, this.props.situation.overturn)}
-                    image={hongbin}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongpao1, this.props.situation.overturn)}
-                    image={hongpao}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.hongpao2, this.props.situation.overturn)}
-                    image={hongpao}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heiju1, this.props.situation.overturn)}
-                    image={heiju}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heima1, this.props.situation.overturn)}
-                    image={heima}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heixiang1, this.props.situation.overturn)}
-                    image={heixiang}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heishi1, this.props.situation.overturn)}
-                    image={heishi}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heijiang, this.props.situation.overturn)}
-                    image={heijiang}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heishi2, this.props.situation.overturn)}
-                    image={heishi}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heixiang2, this.props.situation.overturn)}
-                    image={heixiang}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heima2, this.props.situation.overturn)}
-                    image={heima}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heiju2, this.props.situation.overturn)}
-                    image={heiju}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heizu1, this.props.situation.overturn)}
-                    image={heizu}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heizu2, this.props.situation.overturn)}
-                    image={heizu}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heizu3, this.props.situation.overturn)}
-                    image={heizu}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heizu4, this.props.situation.overturn)}
-                    image={heizu}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heizu5, this.props.situation.overturn)}
-                    image={heizu}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heipao1, this.props.situation.overturn)}
-                    image={heipao}
-                />
-                <Piece
-                    pieceStyle={this.positionToStyle(this.props.situation.heipao2, this.props.situation.overturn)}
-                    image={heipao}
-                />
+                {
+                    for(let i = 0; i < 9; i++){
+                        for(let j = 0; j < 10; j++){
+                            <BlankPiece
+                                x = {i}
+                                y = {j} 
+                            />
+                        }
+                    }
+                }
+                {
+                    this.props.tx.hongju1 ? 
+                        <Anime easing="easeOutElastic"
+                            loop={false}
+                            autoplay={true}
+                            duration={1000}
+                            translateX={this.props.tx.hongju1.x}
+                            translateY={this.props.tx.hongju1.y}>
+                            <Piece
+                                id = 0
+                                xyzo = {this.props.situation[0]}
+                                isRed = true
+                                overturn = {this.props.overturn}
+                                handlerClick = {id => this.handlerClickPiece(id)}
+                                image = {hongju}
+                            />
+                        </Anime>
+                        : 
+                        <Piece
+                            id = 0
+                            xyzo = {this.props.situationi[0]}
+                            isRed = true
+                            overturn = {this.props.overturn}
+                            handlerClick = {id => this.handlerClickPiece(id)}
+                            image = {hongju}
+                        />
+                }
+
             </div>
         )
     }

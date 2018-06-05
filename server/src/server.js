@@ -1,6 +1,8 @@
 import Mongo from 'mongodb';
 import WebSocket from 'ws';
 import MessageHandler from './message-handler.js';
+import mysql from 'mysql';
+import Bluebird from 'bluebird';
 
 const wss = new WebSocket.Server({
     port: 4000,
@@ -25,19 +27,26 @@ const wss = new WebSocket.Server({
     }
 });
 
-const url = "mongodb://localhost:27017";
+const mysqlPool = mysql.createPool({
+    connectionLimit : 10,
+    host     : 'localhost',
+    port     : 3306,
+    user     : 'root',
+    password : 'c509ada97',
+    database : 'cchess'
+});
 
-Mongo.connect(url, function(err, db){
-    if(err) throw err;
-    let messageHander = new MessageHandler(db, 'cchess');
-    wss.on('connection', (ws) => {
-        console.log('connection received')
-        ws.on('message', (msg) => {
-            messageHander.handlerMessage(ws, msg);
-        })
-        ws.on('close', () => {
-            messageHander.handlerClose(ws)
-        })
+const mysqldb = Bluebird.promisifyAll(mysqlPool);
+
+let messageHander = new MessageHandler(mysqldb, 'cchess');
+wss.on('connection', (ws) => {
+    console.log('connection received')
+    ws.on('message', (msg) => {
+        messageHander.handlerMessage(ws, msg);
+    })
+    ws.on('close', () => {
+        messageHander.handlerClose(ws)
     })
 })
+
 
