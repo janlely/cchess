@@ -11,14 +11,17 @@ class BlankPiece extends React.Component{
             position: 'absolute',
             width: '46px',
             height: '46px',
-            left: (2 + (8-pos.x) * 50) + 'px',
-            top: (2 + (9-pos.y) * 50) + 'px',
+            left: (2 + (8-x) * 50) + 'px',
+            top: (2 + (9-y) * 50) + 'px',
             zIndex: 1
         }
     }
+    handlerClick(){
+        this.props.handlerClick(this.props.id);
+    }
     render(){
         return(
-            <div style={this.positionToStyle(this.prosp.x, this.props.y)}>
+            <div style={this.positionToStyle(this.props.x, this.props.y)} onClick={() => this.handlerClick()}>
             </div>
         )
     }

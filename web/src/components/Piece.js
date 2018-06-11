@@ -10,12 +10,12 @@ class Piece extends React.Component{
         this.props.handlerClick(this.props.id);
     }
     positionToStyle(){
-        let x = this.props.x;
-        let y = this.props.y;
-        let z = this.props.z;
+        let x = this.props.xyzo.x;
+        let y = this.props.xyzo.y;
+        let z = this.props.xyzo.z;
         let isRed = this.props.isRed;
         let overturn = this.props.overturn;
-        let o = this.props.o;
+        let o = this.props.xyzo.o;
         return {
             position: 'absolute',
             width: '46px',

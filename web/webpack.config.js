@@ -25,7 +25,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
 	entry: './src/index.js',
-
 	output: {
 		filename: '[name].[hash].bundle.js',
 		path: path.resolve(__dirname, 'cchess')
@@ -33,6 +32,7 @@ module.exports = {
     devServer: {
         contentBase: './cchess'
     },
+    devtool: 'eval-source-map',
 	module: {
 		rules: [{
 				test: /\.js$/,
@@ -68,7 +68,7 @@ module.exports = {
 	},
 
 	plugins: [
-		new UglifyJSPlugin(),
+		//new UglifyJSPlugin(),
         new ExtractTextPlugin({
             filename : 'styles.[hash].css',
             allChunks : true

@@ -21,8 +21,10 @@ class MessageHandler{
         this.userConnMap = new HashMap();
         this.requestType = {
             login: 'LOGIN',
+            signup: 'SIGNUP',
             logout: 'LOGOUT',
-            findMatch: 'FIND_MATCH' 
+            findMatch: 'FIND_MATCH',
+            applyMove: 'APPLY_MOVE'
         }
         this.redisKeys = {
             userRoomIdKey : 'CCHESS_USER_ROOMID',
@@ -33,8 +35,14 @@ class MessageHandler{
         this.handlerMap.set(this.requestType.logout, (ws) => {
             this.handlerLogout(ws);
         })
+        this.handlerMap.set(this.requestType.signup, (ws, msg) => {
+            this.handlerSignUp(ws, msg)
+        })
         this.handlerMap.set(this.requestType.findMatch, (ws, msg) => {
             this.handlerFindMatch(ws, msg);
+        })
+        this.handlerMap.set(this.requestType.applyMove, (ws, msg) => {
+            this.handlerApplyMove(ws, msg);
         })
         this.matchHelper = new MatchHelper(this.redis)
     }
@@ -46,6 +54,8 @@ class MessageHandler{
         }else{
             this.handlerMap.get(msgJson.type)(ws, msgJson);
         }
+    }
+    handlerApplyMove(ws, msg){
     }
     async handlerFindMatch(ws, msg) {
         
@@ -59,8 +69,10 @@ class MessageHandler{
             return;
         }
         let userInfo = await this.mysqldb.queryAsync(MysqlMapper.getUserBattleInfo.format(userId))
-        MatchHelper.push(userId, userInfo.score, Date.now());
+        console.log(userInfo[0])
+        this.matchHelper.push(userId, userInfo[0].score, Date.now());
         let matchedUsers = MatchHelper.pop(userId, userInfo.score);
+        //let matchedUsers = [1, 2]
         if(matchedUsers){
             this.initBattleRoom(matchedUsers);
         }
@@ -68,34 +80,39 @@ class MessageHandler{
     initBattleRoom(users){
         let roomId = UUID().toUpperCase();
         let redId = Date.now() % 2 ? users[0] : users[1];
+        //let redId = 2;
         this.redis.hset([roomId, 'USERS', users]);
         this.redis.hset([roomId, 'RED', redId])
         this.redis.hset([this.redisKeys.userRoomIdKey, users[0], roomId])
         this.redis.hset([this.redisKeys.userRoomIdKey, users[1], roomId])
         let ws1 = this.userConnMap.get(users[0]);
         let ws2 = this.userConnMap.get(users[1]);
-        ws1.send(JSON.stringify({
-            type : this.requestType.findMatch,
-            data : {
-                roomId : roomId,
-                red : redId == users[0],
-                stepTime : 60,
-                matchTime : 1200,
-                selfHeadUrl : '',
-                enemyHeadUrl : ''
-            }
-        }));
-        ws2.send(JSON.stringify({
-            type : this.requestType.findMatch,
-            data : {
-                roomId : roomId,
-                red : redId == users[1],
-                stepTime : 60,
-                matchTime : 1200,
-                selfHeadUrl : '',
-                enemyHeadUrl : ''
-            }
-        }));
+        if(ws1){
+            ws1.send(JSON.stringify({
+                type : this.requestType.findMatch,
+                data : {
+                    roomId : roomId,
+                    red : redId == users[0],
+                    stepTime : 60,
+                    matchTime : 1200,
+                    selfHeadUrl : '',
+                    enemyHeadUrl : ''
+                }
+            }));
+        }
+        if(ws2){
+            ws2.send(JSON.stringify({
+                type : this.requestType.findMatch,
+                data : {
+                    roomId : roomId,
+                    red : redId == users[1],
+                    stepTime : 60,
+                    matchTime : 1200,
+                    selfHeadUrl : '',
+                    enemyHeadUrl : ''
+                }
+            }));
+        }
     }
     initSession(ws, result){
         if(this.userConnMap.has(result.userId)){
@@ -109,15 +126,30 @@ class MessageHandler{
         if(result && result[0]){
             this.initSession(ws, result[0]);
             ws.send(JSON.stringify({
-                ok : 'ok',
-                id : msg.id
+                id : msg.id,
+                data : {
+                    ok : 'ok'
+                }
             }))
         }else{
             ws.send(JSON.stringify({
                 id: msg.id,
-                error: 'wrong name or password'
+                data : {
+                    error: 'wrong name or password'
+                }
             }))
         }
+    }
+    async handlerSignUp(ws, msg){
+        let result = await this.mysqldb.queryAsync(MysqlMapper.checkUserExist.format(msg.data.username));
+        if(result && result[0]){
+            ws.send(JSON.stringify({
+                error : 'user exist',
+                id : msg.id
+            }))
+        }
+        let result2 = await this.mysqldb.queryAsync(MysqlMapper.addNewUser.format(msg.data.username, msg.data.password));
+        console.log("sign up result: " + result2)
     }
     handlerClose(ws) {
     }

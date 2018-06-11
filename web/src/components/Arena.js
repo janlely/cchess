@@ -7,6 +7,7 @@ import ConsoleKeyboard from './ConsoleKeyboard.js';
 import FindingMatch from './FindingMatch.js';
 import Situation from './Situation.js';
 import WebSocketBase from './WebSocketBase.js';
+import InfoPanel from './InfoPanel.js';
 
 class Arena extends WebSocketBase{
     constructor(props) {
@@ -31,14 +32,38 @@ class Arena extends WebSocketBase{
         this.handlerMap.set(this.requestType.findMatch, (res) => {
             this.handlerFindMatchRes(res);
         })
-        this.handlerMap.set(this.requestType.applyMove, )
+        this.handlerMap.set(this.requestType.applyMove, (req, res) => {
+            this.handlerApplyMove(req, res)
+        })
         this.handlerMap.set(this.requestType.enemyMove, (msg) => {
             this.handlerEnemyMove(msg);
         })
         this.move = {}
     }
+    handlerApplyMove(req, res){
+    }
     handlerEnemyMove(msg){
-        
+        if(this.stepId != msg.stepId){
+            console.log("stepId is wrong, this.stepId: " + this.stepId + " that.stepId: " + msg.stepId)
+        }
+        this.stepId = msg.stepId + 1;
+    }
+    genTranslate(id1, id2){
+        let result = {}
+        let x = 0;
+        let y = 0;
+        if(id2 < 100){
+            let x = this.situation[id1].x - (8 - this.situation[id2].x);
+            let y = this.situation[id1].y - (9 - this.situation[id2].y);
+        }else{
+            let x = this.situation[id1].x - Math.round((id2 - 100) / 10);
+            let y = this.situation[id1].y - (id2 % 10);
+        }
+        result[id1] = {
+            x: x,
+            y: y
+        }
+        return result;
     }
     handlerPieceClick(id) {
         if(!this.yourTurn){
@@ -54,29 +79,49 @@ class Arena extends WebSocketBase{
                 return
             }
         }else{ //走子或吃对方子
-            if(this.youRed && id <= 15){ //红方只能吃黑方子
+            let id1 = this.move.fromId;
+            let id2 = id;
+            if(this.youRed && id2 <= 15){ //红方只能吃黑方子
                 return
             }
-            if(!this.youRed && id > 15 && id <=31){//黑方只能吃红方子
+            if(!this.youRed && id2 > 15 && id2 <=31){//黑方只能吃红方子
                 return
             }
-            if(!this.legalMove(this.move.fromId, id)){ //判断是否符合规则
+            if(!this.legalMove(id1, id2)){ //判断是否符合规则
                 return;
             }
+            //更新this.situation
+            let toXY = this.getXYFromId(id2);
+            this.situation[id1].x = toXY[0];
+            this.situation[id1].y = toXY[1];
+            if(id2 < 100){
+                this.situation[id2].z = -2;
+            }
+            this.setState({
+                situation: this.situation
+            })
+            this.yourTurn = !this.yourTurn
             //调后端接口
             let request = {
                 id: Date.now(),
                 type: this.requestType.applyMove,
                 data: {
                     roomId: this.roomId,
-                    fromId: this.move.fromId,
-                    toId: id
+                    fromId: id1,
+                    fromXY: [this.state.overturn, this.situation[id1].x, this.situation[id1].y],
+                    toId: id2,
+                    toXY: [this.state.overturn, ...toXY],
+                    stepId: this.stepId,
+                    redStepTime: this.youRed ? this.state.selfStepTime : this.state.enemyStepTime,
+                    redMatchTime: this.youRed ? this.state.selfMatchTime : this.state.enemyMatchTime,
+                    blackStepTime: this.youRed ? this.state.enemyStepTime : this.state.selfStepTime,
+                    blackMatchTime: this.youRed ? this.state.enemyMatchTime : this.state.selfMatchTime
                 }
             }
             this.requestMap.set(request.id, request);
             this.props.socket.send(JSON.stringify(request));
+            this.move = {}
         }
-        
     }
     getXYFromId(id){
         if(id <= 16){
@@ -85,7 +130,7 @@ class Arena extends WebSocketBase{
             }else{
                 return [8 - this.situation[id].x, 9 - this.situation[id].y];
             }
-        }else if(16 <= 32){
+        }else if(id <= 32){
             if(this.state.overturn){//翻转
                 return [this.situation[id].x, this.situation[id].y];
             }else{
@@ -104,45 +149,43 @@ class Arena extends WebSocketBase{
             }
             if(fromXY[0] == toXY[0]){ //竖移
                 let x = fromXY[0];
-                for(let i = Math.min(fromXY[1], toXY[1]); i <= Math.max(fromXY[1], toXY[1]); i++){
+                for(let i = Math.min(fromXY[1], toXY[1]) + 1; i < Math.max(fromXY[1], toXY[1]); i++){
                     if(this.situation_[x][i] != 0){ //路径上不能有其他棋子
                         return false;
                     }
                 }
             }else{
                 let y = fromXY[1];
-                for(let i = Math.min(fromXY[0], toXY[0]); i <= Math.max(fromXY[0], toXY[0]); i++){
+                for(let i = Math.min(fromXY[0], toXY[0]) + 1; i < Math.max(fromXY[0], toXY[0]); i++){
                     if(this.situation_[i][y] != 0){ //路径上不能有其他棋子
                         return false;
                     }
                 }
             }
-        }
-        if([2, 8, 18, 24].indexOf(id1) != -1){ //马
+        }else if([2, 8, 18, 24].indexOf(id1) != -1){ //马
             if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 5){ //马走日 
                 return false;
             }
-            if(fromXY[0] + 2 = toXY[0] &&  this.situation_[fromXY[0] + 1][fromXY[1]] != 0){//别脚
+            if(fromXY[0] + 2 == toXY[0] &&  this.situation_[fromXY[0] + 1][fromXY[1]] != 0){//别脚
                 return false;
             }
-            if(fromXY[0] - 2 = toXY[0] &&  this.situation_[fromXY[0] - 1][fromXY[1]] != 0){//别脚
+            if(fromXY[0] - 2 == toXY[0] &&  this.situation_[fromXY[0] - 1][fromXY[1]] != 0){//别脚
                 return false;
             }
-            if(fromXY[1] + 2 = toXY[1] &&  this.situation_[fromXY[0]][fromXY[1] + 1] != 0){//别脚
+            if(fromXY[1] + 2 == toXY[1] &&  this.situation_[fromXY[0]][fromXY[1] + 1] != 0){//别脚
                 return false;
             }
-            if(fromXY[1] - 2 = toXY[1] &&  this.situation_[fromXY[0]][fromXY[1] - 1] != 0){//别脚
+            if(fromXY[1] - 2 == toXY[1] &&  this.situation_[fromXY[0]][fromXY[1] - 1] != 0){//别脚
                 return false;
             }
-        }
-        if([15, 16, 31, 32].indexOf(id1) != -1){//炮
+        }else if([15, 16, 31, 32].indexOf(id1) != -1){//炮
             if(fromXY[0] != toXY[0] && fromXY[1] != toXY[1]){ //炮只能横竖移动
                 return false;
             }
             if(this.situation_[toXY[0]][toXY[1]] != 0){ //吃子
                 if(fromXY[0] == toXY[0]){ //竖移
                     let count = 0;
-                    for(let i = Math.min(fromXY[1], toXY[1]); i <= Math.max(fromXY[1], toXY[1]); i++){
+                    for(let i = Math.min(fromXY[1], toXY[1]) + 1; i < Math.max(fromXY[1], toXY[1]); i++){
                         if(this.situation_[fromXY[0]][i] != 0){
                             count++
                         }
@@ -152,7 +195,7 @@ class Arena extends WebSocketBase{
                     }
                 }else{ //横移
                     let count = 0;
-                    for(let i = Math.min(fromXY[0], toXY[0]); i <= Math.max(fromXY[0], toXY[0]); i++){
+                    for(let i = Math.min(fromXY[0], toXY[0]) + 1; i < Math.max(fromXY[0], toXY[0]); i++){
                         if(this.situation_[i][fromXY[1]] != 0){
                             count++
                         }
@@ -163,29 +206,29 @@ class Arena extends WebSocketBase{
                 }
             }else{ //移动
                 if(fromXY[0] == toXY[0]){ //竖移
-                    for(let i = Math.min(fromXY[1], toXY[1]); i <= Math.max(fromXY[1], toXY[1]); i++){
+                    for(let i = Math.min(fromXY[1], toXY[1]) + 1; i < Math.max(fromXY[1], toXY[1]); i++){
                         if(this.situation_[fromXY[0]][i] != 0){
                             return false;
                         }
                     }
                 }else{ //横移
-                    for(let i = Math.min(fromXY[0], toXY[0]); i <= Math.max(fromXY[0], toXY[0]); i++){
+                    for(let i = Math.min(fromXY[0], toXY[0]) + 1; i < Math.max(fromXY[0], toXY[0]); i++){
                         if(this.situation_[i][fromXY[1]] != 0){
                             return false;
                         }
                     }
                 }
             }
-        }
-        if([3, 7, 19, 23].indexOf(id1) != -1){ //象
+        }else if([3, 7, 19, 23].indexOf(id1) != -1){ //象
+
             if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 8){ //象飞田
                 return false;
             }
             if(this.situation_[(fromXY[0] + toXY[0]) / 2][(fromXY[1] + toXY[1]) / 2] != 0){ //象眼被压
                 return false;
             }
-        }
-        if([4, 6, 20, 22].indexOf(id1) != -1){ //士
+        }else if([4, 6, 20, 22].indexOf(id1) != -1){ //士
+
             if(toXY[0] < 3 || toXY[0] > 5){
                 return false;
             }
@@ -195,8 +238,8 @@ class Arena extends WebSocketBase{
             if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 2){ 
                 return false;
             }
-        }
-        if([5, 21].indexOf(id1) != -1){//将帅
+        }else if([5, 21].indexOf(id1) != -1){//将帅
+
             if(toXY[0] < 3 || toXY[0] > 5){
                 return false;
             }
@@ -206,8 +249,8 @@ class Arena extends WebSocketBase{
             if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 1){ 
                 return false;
             }
-        }
-        if([10, 11, 12, 13, 14].indexOf(id1) != 1){ //红兵
+        }else if([10, 11, 12, 13, 14].indexOf(id1) != -1){ //红兵
+
             if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 1){ 
                 return false;
             }
@@ -226,8 +269,8 @@ class Arena extends WebSocketBase{
                     return false;
                 }
             }
-        }
-        if([26, 27, 28, 29, 30]){//黑卒
+        }else if([26, 27, 28, 29, 30].indexOf(id1) != -1){//黑卒
+        
             if((fromXY[0] - toXY[0])*(fromXY[0] - toXY[0]) + (fromXY[1] - toXY[1])*(fromXY[1] - toXY[1]) != 1){ 
                 return false;
             }
@@ -251,7 +294,7 @@ class Arena extends WebSocketBase{
         return true;
     }
     initSituation(overturn) {
-        this.situation = []
+        let situation = []
         situation[1] = {x: 0,y: 0,z: 2,o: 1}; //right-ju
         situation[2] = {x: 1,y: 0,z: 2,o: 1}; //right-ma
         situation[3] = {x: 2,y: 0,z: 2,o: 1}; //right-xiang
@@ -284,11 +327,13 @@ class Arena extends WebSocketBase{
         situation[30] = {x: 8,y: 3,z: 2,o: 1};
         situation[31] = {x: 1,y: 2,z: 2,o: 1};
         situation[32] = {x: 7,y: 2,z: 2,o: 1};
-        this.situation_ = this.convertSituation(this.situation, overturn);
+        this.situation_ = this.convertSituation(situation, overturn);
+        return situation;
     }
     convertSituation(situation, overturn) {
-        let situation_ = [[]];
+        let situation_ = [];
         for(let i = 0; i < 9; i++){
+            situation_[i] = [];
             for(let j = 0; j < 10; j++){
                 situation_[i][j] = 0;
             }
@@ -319,8 +364,9 @@ class Arena extends WebSocketBase{
     handlerFindMatchRes(res){
         this.youRed = res.red;
         this.yourTurn = res.red;
-        this.roomId = red.roomId;
+        this.roomId = res.roomId;
         this.situation = this.initSituation(!res.red);
+        this.stepId = 1;
         this.setState({
             selfStepTime: res.stepTime,
             selfMatchTime: res.MatchTime,
@@ -347,9 +393,7 @@ class Arena extends WebSocketBase{
             findingMatchHidden: false,
             matchBtnHidden: true
         })
-        while(!matchFound){
-            setTimeout(() => this.findMatch(), 1000)
-        }
+        this.findMatch()
     }
     startGame() {
         this.timer = setInterval(() => {
@@ -376,7 +420,7 @@ class Arena extends WebSocketBase{
         return (
             <div>
                 <InfoPanel 
-                    alignLeft=true
+                    alignLeft={true}
                     headUrl={this.state.enemyHeadUrl}
                     stepTime={this.state.enemyStepTime}
                     matchTime={this.state.enemyMatchTime}
@@ -393,10 +437,11 @@ class Arena extends WebSocketBase{
                             && <Situation
                                 overturn ={this.state.overturn}
                                 situation={this.state.situation}
+                                handlerPieceClick = {id => this.handlerPieceClick(id)}
                             />}
                 </div>
                 <InfoPanel 
-                    alignLeft=false
+                    alignLeft={false}
                     headUrl={this.state.selfHeadUrl}
                     stepTime={this.state.selfStepTime}
                     matchTime={this.state.selfMatchTime}

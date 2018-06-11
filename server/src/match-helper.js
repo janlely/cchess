@@ -5,6 +5,9 @@ class MatchHelper{
         this.matchRange = 100;
     }
     push(userId, score, time) {
+        console.log(userId)
+        console.log(score)
+        console.log(time)
         this.redis.zadd([this.redisMatchQueueKey, score, userId]);
     }
     async pop(userId, score) {
@@ -33,7 +36,7 @@ class MatchHelper{
         }
         let j = await this.redis.zremAsync([this.redisMatchQueueKey, enemyId]);
         if(j != 1){
-            this.redis.zadd([this.redisMatchQueueKey, score, userId, enemyScore, enemyId]]);
+            this.redis.zadd([this.redisMatchQueueKey, score, userId, enemyScore, enemyId]);
             return null;
         }
         return [userId, enemyId];
