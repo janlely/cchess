@@ -26,6 +26,37 @@ class Situation extends React.Component{
     handlerPieceClick(id){
         this.props.handlerPieceClick(id);
     }
+    getImageById(id){
+        if([1, 9].indexOf(id) != -1){
+            return hongju;
+        }else if([2, 8].indexOf(id) != -1){
+            return hongma;
+        }else if([3, 7].indexOf(id) != -1){
+            return hongxiang;
+        }else if([4, 6].indexOf(id) != -1){
+            return hongshi;
+        }else if(id == 5){
+            return hongshuai;
+        }else if([10, 11, 12, 13, 14].indexOf(id) != -1){
+            return hongbin;
+        }else if([15, 16].indexOf(id) != -1){
+            return hongpao;
+        }else if([17, 25].indexOf(id) != -1){
+            return heiju;
+        }else if([18, 24].indexOf(id) != -1){
+            return heima;
+        }else if([19, 23].indexOf(id) != -1){
+            return heixiang;
+        }else if([20, 22].indexOf(id) != -1){
+            return heishi;
+        }else if(id == 21){
+            return heijiang;
+        }else if([26, 27, 28, 29, 30].indexOf(id) != -1){
+            return heizu;
+        }else if([31, 32].indexOf(id) != -1){
+            return heipao;
+        }
+    }
     render(){
         let blankPieces = []
         for(let i = 0; i < 9; i++){
@@ -40,17 +71,37 @@ class Situation extends React.Component{
                 )
             }
         }
-        return(
-            <div styleName="main">
-                {blankPieces}
+        let redPieces = []
+        for(let i = 1; i <= 16; i++){
+            redPieces.push(
                 <Piece
-                    id = {1}
-                    xyzo = {this.props.situation[1]}
+                    id = {i}
+                    xyzo = {this.props.situation[i]}
                     isRed = {true}
                     overturn = {this.props.overturn}
                     handlerClick = {id => this.handlerPieceClick(id)}
-                    image = {hongju}
+                    image = {this.getImageById(i)}
                 />
+            )
+        }
+        let blackPieces = []
+        for(let i = 17; i <= 32; i++){
+            blackPieces.push(
+                <Piece
+                    id = {i}
+                    xyzo = {this.props.situation[i]}
+                    isRed = {false}
+                    overturn = {this.props.overturn}
+                    handlerClick = {id => this.handlerPieceClick(id)}
+                    image = {this.getImageById(i)}
+                />
+            )
+        }
+        return(
+            <div styleName="main">
+                {blankPieces}
+                {redPieces}
+                {blackPieces}
             </div>
         )
     }
