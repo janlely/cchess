@@ -59,19 +59,23 @@ class MessageHandler{
         }
     }
     async handlerApplyMove(ws, msg){
+        msg = msg.data;
         let roomId = msg.roomId;
         let stepId = msg.stepId;
         //存redis
         let stepCode = [msg.fromId, msg.toId, ...msg.fromXY, ...msg.toXY];
-        this.redis.hset([this.redisKeys.roomMoveHistroyKey + '_' + roomId, setpId, stepCode])
+        this.redis.hset([this.redisKeys.roomMoveHistroyKey + '_' + roomId, stepId, stepCode])
         this.redis.set(this.redisKeys.roomCurrentStepId, stepId);
         //查对手的id
         let users = await this.redis.hgetAsync(roomId, 'USERS');
-        let redUser = await this.redis.hgetAsync(roomId, 'RED');
+        console.log(users)
         users = users.split(',').map(num => parseInt(num, 10));
-        let enemyId = (redUser == users[0]) ? users[0] : users[1];
+        let theUserId = this.connUserMap.get(ws);
+        let enemyId = (theUserId == users[0]) ? users[1] : users[0];
+        console.log(enemyId)
         //查对手的ws
-        let enemyWs = this.connUserMap.get(enemyId);
+        let enemyWs = this.userConnMap.get(enemyId);
+        console.log(enemyWs)
         if(enemyWs){
             enemyWs.send(JSON.stringify({
                 type: this.requestType.enemyMove,
@@ -95,9 +99,8 @@ class MessageHandler{
             return;
         }
         let userInfo = await this.mysqldb.queryAsync(MysqlMapper.getUserBattleInfo.format(userId))
-        console.log(userInfo[0])
         this.matchHelper.push(userId, userInfo[0].score, Date.now());
-        let matchedUsers = MatchHelper.pop(userId, userInfo.score);
+        let matchedUsers = await this.matchHelper.pop(userId, userInfo[0].score);
         //let matchedUsers = [1, 2]
         if(matchedUsers){
             this.initBattleRoom(matchedUsers);
@@ -111,8 +114,15 @@ class MessageHandler{
         this.redis.hset([roomId, 'RED', redId])
         this.redis.hset([this.redisKeys.userRoomIdKey, users[0], roomId])
         this.redis.hset([this.redisKeys.userRoomIdKey, users[1], roomId])
+        console.log(users)
         let ws1 = this.userConnMap.get(users[0]);
         let ws2 = this.userConnMap.get(users[1]);
+        console.log(this.userConnMap)
+        console.log(users[0])
+        console.log(ws1 ? true : false)
+        console.log(ws2 ? true : false)
+        console.log(redId == users[0])
+        console.log(redId == users[1])
         if(ws1){
             ws1.send(JSON.stringify({
                 type : this.requestType.findMatch,

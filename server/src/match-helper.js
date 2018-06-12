@@ -11,7 +11,10 @@ class MatchHelper{
         this.redis.zadd([this.redisMatchQueueKey, score, userId]);
     }
     async pop(userId, score) {
-        let matcher = await this.redis.zrangebyscoreAsync([this.redisMatchQueueKey, score - this.matchRange, score + this.matchRange, 'WITHSCORES','LIMIT', 0, 2])
+        let minScore = score - this.matchRange;
+        let maxScore = score + this.matchRange;
+        let matcher = await this.redis.zrangebyscoreAsync([this.redisMatchQueueKey, minScore, maxScore, 'WITHSCORES','LIMIT', 0, 2])
+        console.log(matcher)
         let enemyId = '';
         let enemyScore = 0;
         if(matcher.length == 2){
@@ -39,7 +42,7 @@ class MatchHelper{
             this.redis.zadd([this.redisMatchQueueKey, score, userId, enemyScore, enemyId]);
             return null;
         }
-        return [userId, enemyId];
+        return [userId, enemyId].map(num => parseInt(num, 10));
     }
 }
 

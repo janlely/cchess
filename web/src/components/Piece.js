@@ -20,8 +20,8 @@ class Piece extends React.Component{
             position: 'absolute',
             width: '46px',
             height: '46px',
-            left: (!overturn && isRed ? (2 + (8-x) * 50) : (2 + x * 50)) + 'px',
-            top: (!overturn && isRed ? (2 + (9-y) * 50) : (2 + y * 50)) + 'px',
+            left: (!overturn && isRed || overturn && !isRed ? (2 + (8-x) * 50) : (2 + x * 50)) + 'px',
+            top: (!overturn && isRed || overturn && !isRed ? (2 + (9-y) * 50) : (2 + y * 50)) + 'px',
             zIndex: z,
             opacity: o
         }

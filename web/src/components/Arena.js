@@ -67,7 +67,7 @@ class Arena extends WebSocketBase{
         }
         return result;
     }
-    updateSituation(fromId, toId){
+    updateSituation(id1, id2){
         //更新this.situation
         let fromXY = this.getXYFromId(id1);
         let toXY = this.getXYFromId(id2);
@@ -106,7 +106,17 @@ class Arena extends WebSocketBase{
             if(!this.legalMove(id1, id2)){ //判断是否符合规则
                 return;
             }
-            this.updateSituation(id1, id2);
+            let fromXY = this.getXYFromId(id1);
+            let toXY = this.getXYFromId(id2);
+            this.situation[id1].x = toXY[0];
+            this.situation[id1].y = toXY[1];
+            if(id2 < 100){
+                this.situation[id2].z = -2;
+            }
+            this.setState({
+                situation: this.situation
+            })
+            this.yourTurn = !this.yourTurn
             //调后端接口
             let request = {
                 id: Date.now(),
