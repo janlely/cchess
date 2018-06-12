@@ -176,6 +176,12 @@ class MessageHandler{
         }
         let result2 = await this.mysqldb.queryAsync(MysqlMapper.addNewUser.format(msg.data.username, msg.data.password));
         console.log("sign up result: " + result2)
+        ws.send(JSON.stringify({
+            type: this.requestType.signup,
+            data:{
+                ok: 'ok'
+            }
+        }))
     }
     handlerClose(ws) {
     }

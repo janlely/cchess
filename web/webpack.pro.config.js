@@ -24,7 +24,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
-	entry: './src/index.js',
+	entry: './src/index-pro.js',
 	output: {
 		filename: '[name].[hash].bundle.js',
 		path: path.resolve(__dirname, 'cchess')
