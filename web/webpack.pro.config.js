@@ -32,7 +32,6 @@ module.exports = {
     devServer: {
         contentBase: './cchess'
     },
-    devtool: 'eval-source-map',
 	module: {
 		rules: [{
 				test: /\.js$/,
@@ -68,7 +67,7 @@ module.exports = {
 	},
 
 	plugins: [
-		//new UglifyJSPlugin(),
+        new UglifyJSPlugin(),
         new ExtractTextPlugin({
             filename : 'styles.[hash].css',
             allChunks : true
