@@ -50,29 +50,19 @@ class Arena extends WebSocketBase{
         this.stepId = msg.stepId + 1;
         this.updateSituation(msg.fromId, msg.toId);
     }
-    genTranslate(id1, id2){
-        let result = {}
-        let x = 0;
-        let y = 0;
-        if(id2 < 100){
-            let x = this.situation[id1].x - (8 - this.situation[id2].x);
-            let y = this.situation[id1].y - (9 - this.situation[id2].y);
-        }else{
-            let x = this.situation[id1].x - Math.round((id2 - 100) / 10);
-            let y = this.situation[id1].y - (id2 % 10);
-        }
-        result[id1] = {
-            x: x,
-            y: y
-        }
-        return result;
-    }
     updateSituation(id1, id2){
         //更新this.situation
         let fromXY = this.getXYFromId(id1);
         let toXY = this.getXYFromId(id2);
-        this.situation[id1].x = toXY[0];
-        this.situation[id1].y = toXY[1];
+        if(id2 > 100){//走子
+            this.situation[id1].x = toXY[0];
+            this.situation[id1].y = toXY[1];
+        }else{//吃子
+            this.situation[id1].x = 8 - toXY[0];
+            this.situation[id1].y = 9 - toXY[1];
+        }
+        this.situation_[fromXY[0]][fromXY[1]] = 0;
+        this.situation_[toXY[0]][toXY[1]] = id1;
         if(id2 < 100){
             this.situation[id2].z = -2;
         }
@@ -86,30 +76,33 @@ class Arena extends WebSocketBase{
             return
         }
         if(!this.move.fromId){//选子
-            if(this.youRed && id <= 15){ //红方只能移动红子
+            if(this.youRed && id <= 16){ //红方只能移动红子
                 this.move.fromId = id
                 return
             }
-            if(!this.youRed && id > 15 && id <=31){//黑方只能移动黑子
+            if(!this.youRed && id > 16 && id <=32){//黑方只能移动黑子
                 this.move.fromId = id
                 return
             }
         }else{ //走子或吃对方子
             let id1 = this.move.fromId;
             let id2 = id;
-            if(this.youRed && id2 <= 15){ //红方只能吃黑方子
+            if(this.youRed && id2 <= 16){ //红方只能吃黑方子
                 return
             }
-            if(!this.youRed && id2 > 15 && id2 <=31){//黑方只能吃红方子
+            if(!this.youRed && id2 > 16 && id2 <=32){//黑方只能吃红方子
                 return
             }
             if(!this.legalMove(id1, id2)){ //判断是否符合规则
                 return;
             }
+            //更新situation和situation_
             let fromXY = this.getXYFromId(id1);
             let toXY = this.getXYFromId(id2);
             this.situation[id1].x = toXY[0];
             this.situation[id1].y = toXY[1];
+            this.situation_[fromXY[0]][fromXY[1]] = 0;
+            this.situation_[toXY[0]][toXY[1]] = id1;
             if(id2 < 100){
                 this.situation[id2].z = -2;
             }
