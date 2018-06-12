@@ -24,10 +24,13 @@ class MessageHandler{
             signup: 'SIGNUP',
             logout: 'LOGOUT',
             findMatch: 'FIND_MATCH',
-            applyMove: 'APPLY_MOVE'
+            applyMove: 'APPLY_MOVE',
+            enemyMove: 'ENEMY_MOVE'
         }
         this.redisKeys = {
             userRoomIdKey : 'CCHESS_USER_ROOMID',
+            roomMoveHistroyKey : 'CCHESS_ROOM_HISTORY',
+            roomCurrentStepId : 'CCHESS_ROOM_CURRENT_STEPID'
         }
         this.handlerMap.set(this.requestType.login, (ws, msg) => {
             this.handlerLogin(ws, msg);
@@ -55,7 +58,30 @@ class MessageHandler{
             this.handlerMap.get(msgJson.type)(ws, msgJson);
         }
     }
-    handlerApplyMove(ws, msg){
+    async handlerApplyMove(ws, msg){
+        let roomId = msg.roomId;
+        let stepId = msg.stepId;
+        //存redis
+        let stepCode = [msg.fromId, msg.toId, ...msg.fromXY, ...msg.toXY];
+        this.redis.hset([this.redisKeys.roomMoveHistroyKey + '_' + roomId, setpId, stepCode])
+        this.redis.set(this.redisKeys.roomCurrentStepId, stepId);
+        //查对手的id
+        let users = await this.redis.hgetAsync(roomId, 'USERS');
+        let redUser = await this.redis.hgetAsync(roomId, 'RED');
+        users = users.split(',').map(num => parseInt(num, 10));
+        let enemyId = (redUser == users[0]) ? users[0] : users[1];
+        //查对手的ws
+        let enemyWs = this.connUserMap.get(enemyId);
+        if(enemyWs){
+            enemyWs.send(JSON.stringify({
+                type: this.requestType.enemyMove,
+                data: {
+                    fromId: msg.fromId,
+                    toId: msg.toId,
+                    stepId: stepId
+                }
+            }))
+        }
     }
     async handlerFindMatch(ws, msg) {
         

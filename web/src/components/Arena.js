@@ -27,7 +27,8 @@ class Arena extends WebSocketBase{
         this.matchFound = false;
         this.requestType = {
             findMatch : 'FIND_MATCH',
-            applyMove : 'APPLY_MOVE'
+            applyMove : 'APPLY_MOVE',
+            enemyMove : 'ENEMY_MOVE'
         }
         this.handlerMap.set(this.requestType.findMatch, (res) => {
             this.handlerFindMatchRes(res);
@@ -47,6 +48,7 @@ class Arena extends WebSocketBase{
             console.log("stepId is wrong, this.stepId: " + this.stepId + " that.stepId: " + msg.stepId)
         }
         this.stepId = msg.stepId + 1;
+        this.updateSituation(msg.fromId, msg.toId);
     }
     genTranslate(id1, id2){
         let result = {}
@@ -64,6 +66,20 @@ class Arena extends WebSocketBase{
             y: y
         }
         return result;
+    }
+    updateSituation(fromId, toId){
+        //更新this.situation
+        let fromXY = this.getXYFromId(id1);
+        let toXY = this.getXYFromId(id2);
+        this.situation[id1].x = toXY[0];
+        this.situation[id1].y = toXY[1];
+        if(id2 < 100){
+            this.situation[id2].z = -2;
+        }
+        this.setState({
+            situation: this.situation
+        })
+        this.yourTurn = !this.yourTurn
     }
     handlerPieceClick(id) {
         if(!this.yourTurn){
@@ -90,27 +106,18 @@ class Arena extends WebSocketBase{
             if(!this.legalMove(id1, id2)){ //判断是否符合规则
                 return;
             }
-            //更新this.situation
-            let toXY = this.getXYFromId(id2);
-            this.situation[id1].x = toXY[0];
-            this.situation[id1].y = toXY[1];
-            if(id2 < 100){
-                this.situation[id2].z = -2;
-            }
-            this.setState({
-                situation: this.situation
-            })
-            this.yourTurn = !this.yourTurn
+            this.updateSituation(id1, id2);
             //调后端接口
             let request = {
                 id: Date.now(),
                 type: this.requestType.applyMove,
                 data: {
                     roomId: this.roomId,
+                    isRed: this.youRed,
                     fromId: id1,
-                    fromXY: [this.state.overturn, this.situation[id1].x, this.situation[id1].y],
+                    fromXY: [this.state.overturn ? 1 : 0, ...fromXY],
                     toId: id2,
-                    toXY: [this.state.overturn, ...toXY],
+                    toXY: [this.state.overturn ? 1 : 0, ...toXY],
                     stepId: this.stepId,
                     redStepTime: this.youRed ? this.state.selfStepTime : this.state.enemyStepTime,
                     redMatchTime: this.youRed ? this.state.selfMatchTime : this.state.enemyMatchTime,

@@ -1,8 +1,8 @@
 Arguments: 
-  /Users/jay/.nvm/versions/node/v8.10.0/bin/node /Users/jay/.nvm/versions/node/v8.10.0/bin/yarn start
+  /Users/jay/.nvm/versions/node/v8.10.0/bin/node /Users/jay/.nvm/versions/node/v8.10.0/bin/yarn build
 
 PATH: 
-  /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/jay/.nvm/versions/node/v8.10.0/bin:/Users/jay/bin:/usr/local/opt/fzf/bin:/Users/jay/bin:/Users/jay/bin
+  /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/jay/.nvm/versions/node/v8.10.0/bin:/Users/jay/bin:/usr/local/opt/fzf/bin:/Users/jay/bin
 
 Yarn version: 
   1.5.1
@@ -3398,7 +3398,7 @@ Trace:
   Error: Command failed.
   Exit code: 1
   Command: sh
-  Arguments: -c node dist/server.js
+  Arguments: -c babel src/ --out-dir dist/ --copy-files
   Directory: /Users/jay/code/react/cchess/server
   Output:
   
