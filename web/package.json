@@ -21,7 +21,8 @@
     "winston": "^2.4.2"
   },
   "scripts": {
-    "build": "rimraf cchess && webpack",
+    "build-dev": "rimraf cchess && webpack --config webpack.dev.config.js",
+    "build-pro": "rimraf cchess && webpack --config webpack.pro.config.js",
     "start": "webpack-dev-server --hot"
   },
   "devDependencies": {
