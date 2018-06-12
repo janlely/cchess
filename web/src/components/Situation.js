@@ -80,6 +80,7 @@ class Situation extends React.Component{
                     isRed = {true}
                     overturn = {this.props.overturn}
                     handlerClick = {id => this.handlerPieceClick(id)}
+                    isPickedUp={i == this.props.pickedId}
                     image = {this.getImageById(i)}
                 />
             )
@@ -93,6 +94,7 @@ class Situation extends React.Component{
                     isRed = {false}
                     overturn = {this.props.overturn}
                     handlerClick = {id => this.handlerPieceClick(id)}
+                    isPickedUp={i == this.props.pickedId}
                     image = {this.getImageById(i)}
                 />
             )

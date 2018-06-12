@@ -29,7 +29,7 @@ class Piece extends React.Component{
     render(){
         return(
             <div style={this.positionToStyle()} onClick={() => this.handlerClick()}>
-                <img src={this.props.image} style={{width: 'inherit', height: 'inherit'}}/>
+                <img styleName={this.props.isPickedUp ? 'picked' : 'not-picked'} src={this.props.image} style={{width: 'inherit', height: 'inherit'}}/>
             </div>
         )
     }

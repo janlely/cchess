@@ -78,6 +78,9 @@ class Arena extends WebSocketBase{
         if(!this.move.fromId){//选子
             if(this.youRed && id <= 16){ //红方只能移动红子
                 this.move.fromId = id
+                this.setState({
+                    pickedId: id
+                })
                 return
             }
             if(!this.youRed && id > 16 && id <=32){//黑方只能移动黑子
@@ -88,9 +91,17 @@ class Arena extends WebSocketBase{
             let id1 = this.move.fromId;
             let id2 = id;
             if(this.youRed && id2 <= 16){ //红方只能吃黑方子
+                this.move.fromId = id
+                this.setState({
+                    pickedId: id
+                })
                 return
             }
             if(!this.youRed && id2 > 16 && id2 <=32){//黑方只能吃红方子
+                this.move.fromId = id
+                this.setState({
+                    pickedId: id
+                })
                 return
             }
             if(!this.legalMove(id1, id2)){ //判断是否符合规则
@@ -107,7 +118,8 @@ class Arena extends WebSocketBase{
                 this.situation[id2].z = -2;
             }
             this.setState({
-                situation: this.situation
+                situation: this.situation,
+                pickedId: 0
             })
             this.yourTurn = !this.yourTurn
             //调后端接口
@@ -447,6 +459,7 @@ class Arena extends WebSocketBase{
                             && <Situation
                                 overturn ={this.state.overturn}
                                 situation={this.state.situation}
+                                pickedId={this.state.pickedId}
                                 handlerPieceClick = {id => this.handlerPieceClick(id)}
                             />}
                 </div>
