@@ -51,16 +51,17 @@ class Arena extends WebSocketBase{
         this.updateSituation(msg.fromId, msg.toId);
     }
     updateSituation(id1, id2){
+        id2 = 289 - id2;
         //更新this.situation
         let fromXY = this.getXYFromId(id1);
         let toXY = this.getXYFromId(id2);
-        if(id2 > 100){//走子
-            this.situation[id1].x = toXY[0];
-            this.situation[id1].y = toXY[1];
-        }else{//吃子
             this.situation[id1].x = 8 - toXY[0];
             this.situation[id1].y = 9 - toXY[1];
-        }
+        //if(id2 > 100){//走子
+        //}else{//吃子
+            //this.situation[id1].x = 8 - toXY[0];
+            //this.situation[id1].y = 9 - toXY[1];
+        //}
         this.situation_[fromXY[0]][fromXY[1]] = 0;
         this.situation_[toXY[0]][toXY[1]] = id1;
         if(id2 < 100){
@@ -85,6 +86,9 @@ class Arena extends WebSocketBase{
             }
             if(!this.youRed && id > 16 && id <=32){//黑方只能移动黑子
                 this.move.fromId = id
+                this.setState({
+                    pickedId: id
+                })
                 return
             }
         }else{ //走子或吃对方子
@@ -159,7 +163,7 @@ class Arena extends WebSocketBase{
                 return [8 - this.situation[id].x, 9 - this.situation[id].y];
             }
         }else{
-            return [Math.round((id % 100) / 10), (id % 100) % 10];
+            return [Math.floor((id % 100) / 10), id % 10];
         }
     }
     legalMove(id1, id2){
