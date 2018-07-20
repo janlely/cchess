@@ -51,12 +51,14 @@ class Arena extends WebSocketBase{
         this.updateSituation(msg.fromId, msg.toId);
     }
     updateSituation(id1, id2){
-        id2 = 289 - id2;
+        if(id2 > 100){
+            id2 = 289 - id2;
+        }
         //更新this.situation
         let fromXY = this.getXYFromId(id1);
         let toXY = this.getXYFromId(id2);
-            this.situation[id1].x = 8 - toXY[0];
-            this.situation[id1].y = 9 - toXY[1];
+        this.situation[id1].x = 8 - toXY[0];
+        this.situation[id1].y = 9 - toXY[1];
         //if(id2 > 100){//走子
         //}else{//吃子
             //this.situation[id1].x = 8 - toXY[0];
