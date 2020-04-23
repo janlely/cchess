@@ -4,11 +4,11 @@ class MatchHelper{
         this.redisMatchQueueKey = 'CCHESS_MATCH_QUEUE';
         this.matchRange = 100;
     }
-    push(userId, score, time) {
+    async push(userId, score, time) {
         console.log(userId)
         console.log(score)
         console.log(time)
-        this.redis.zadd([this.redisMatchQueueKey, score, userId]);
+        await this.redis.zadd([this.redisMatchQueueKey, score, userId]);
     }
     async pop(userId, score) {
         let minScore = score - this.matchRange;

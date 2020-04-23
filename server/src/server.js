@@ -1,4 +1,3 @@
-import Mongo from 'mongodb';
 import WebSocket from 'ws';
 import MessageHandler from './message-handler.js';
 import mysql from 'mysql';
@@ -32,7 +31,7 @@ const mysqlPool = mysql.createPool({
     host     : 'localhost',
     port     : 3306,
     user     : 'root',
-    password : 'c509ada97',
+    password : 'helloFingo!123',
     database : 'cchess'
 });
 

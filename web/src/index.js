@@ -4,7 +4,7 @@ import Login from "./components/Login.js";
 import Arena from "./components/Arena.js";
 import { BrowserRouter, Route, Switch} from 'react-router-dom';
 
-const ws = new WebSocket('ws://192.168.32.39:4000');
+const ws = new WebSocket('ws://192.168.31.70:4000');
 
 ws.onopen = () => {
     console.log('connection created')

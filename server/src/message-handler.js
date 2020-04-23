@@ -64,7 +64,7 @@ class MessageHandler{
         let stepId = msg.stepId;
         //存redis
         let stepCode = [msg.fromId, msg.toId, ...msg.fromXY, ...msg.toXY];
-        this.redis.hset([this.redisKeys.roomMoveHistroyKey + '_' + roomId, stepId, stepCode])
+        this.redis.hset([this.redisKeys.roomMoveHistroyKey + '_' + roomId, stepId, stepCode.join(',')])
         this.redis.set(this.redisKeys.roomCurrentStepId, stepId);
         //查对手的id
         let users = await this.redis.hgetAsync(roomId, 'USERS');
@@ -85,7 +85,7 @@ class MessageHandler{
         }
     }
     async handlerFindMatch(ws, msg) {
-        
+
         let userId = this.connUserMap.get(ws);
         if(!userId) {
             ws.send(JSON.stringify({
@@ -96,7 +96,7 @@ class MessageHandler{
             return;
         }
         let userInfo = await this.mysqldb.queryAsync(MysqlMapper.getUserBattleInfo.format(userId))
-        this.matchHelper.push(userId, userInfo[0].score, Date.now());
+        await this.matchHelper.push(userId, userInfo[0].score, Date.now());
         let matchedUsers = await this.matchHelper.pop(userId, userInfo[0].score);
         //let matchedUsers = [1, 2]
         if(matchedUsers){
@@ -104,10 +104,12 @@ class MessageHandler{
         }
     }
     initBattleRoom(users){
+        console.log("initializing battle room");
         let roomId = UUID().toUpperCase();
+        console.log("roomId: ", roomId);
         let redId = Date.now() % 2 ? users[0] : users[1];
         //let redId = 2;
-        this.redis.hset([roomId, 'USERS', users]);
+        this.redis.hset([roomId, 'USERS', users.join(',')]);
         this.redis.hset([roomId, 'RED', redId])
         this.redis.hset([this.redisKeys.userRoomIdKey, users[0], roomId])
         this.redis.hset([this.redisKeys.userRoomIdKey, users[1], roomId])
