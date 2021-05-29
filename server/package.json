@@ -19,7 +19,7 @@
         "redis": "^3.0.2",
         "string-format": "^2.0.0",
         "uuid": "^7.0.3",
-        "ws": "^7.2.3"
+        "ws": "^7.4.6"
     },
     "devDependencies": {
         "babel-cli": "^6.26.0",
