@@ -8,7 +8,7 @@
     "css-loader": "^0.28.11",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "hashmap": "^2.3.0",
-    "html-webpack-plugin": "^3.2.0",
+    "html-webpack-plugin": "^5.5.0",
     "react": "^16.3.1",
     "react-css-modules": "^4.7.2",
     "react-dom": "^16.3.1",
